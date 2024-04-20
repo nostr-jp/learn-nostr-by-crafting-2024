@@ -73,15 +73,15 @@ export const postText = async (text: string) => {
 // 1-5. 投稿にリプライしてみよう
 const composeReplyEvent = (
   text: string,
-  targetPubkey: string,
   targetEventId: string,
+  targetPubkey: string,
 ): EventTemplate => {
   return {
     kind: 1,
     content: text,
     tags: [
-      ["p", targetPubkey, ""],
       ["e", targetEventId, ""],
+      ["p", targetPubkey, ""],
     ],
     created_at: currUnixtime(),
   };
@@ -91,8 +91,8 @@ export const postReply = async (text: string) => {
   const relay = await Relay.connect(RELAY_URL);
   const replyEv = composeReplyEvent(
     text,
-    "<リプライ対象イベントのpubkey>",
     "<リプライ対象イベントのid>",
+    "<リプライ対象イベントのpubkey>",
   );
   await publishEvent(relay, replyEv);
 };

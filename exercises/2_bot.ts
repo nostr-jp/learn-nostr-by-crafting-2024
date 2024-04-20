@@ -6,7 +6,7 @@ import { currUnixtime } from "../common/utils.ts";
 
 const RELAY_URL = "wss://yabu.me";
 
-// 2-1. Bot用のアカウントを設定する
+// 2-1. Botのプロフィールを設定する
 const BOT_NSEC = "nsec1...<botの秘密鍵>";
 
 const composeProfile = (): EventTemplate => {
@@ -39,7 +39,9 @@ export const timeSignalBot = async () => {
     await publishEvent(relay, ev);
   }, 60 * 1000);
 };
+// 2-2. ここまで
 
+// 2-2.おまけ 定期的に自動投稿するBot(cron利用)
 export const cronTimeSignalBot = async () => {
   const relay = await Relay.connect(RELAY_URL);
   Deno.cron("time signal", "* * * * *", async () => {
@@ -47,20 +49,20 @@ export const cronTimeSignalBot = async () => {
     await publishEvent(relay, ev);
   });
 };
-// 2-2. ここまで
+// 2-2.おまけ ここまで
 
 // 2-3. キーワードを含む投稿にリアクションするBot
 const composeReactionEvent = (
   reaction: string,
+  targetEventId: string,
   targetPubkey: string,
-  targetEventId: string
 ): EventTemplate => {
   return {
     kind: 7,
     content: reaction,
     tags: [
-      ["p", targetPubkey, ""],
       ["e", targetEventId, ""],
+      ["p", targetPubkey, ""],
     ],
     created_at: currUnixtime(),
   };
@@ -72,9 +74,9 @@ export const keywordReactionBot = async (keyword: string) => {
   relay.subscribe([{ kinds: [1], since: currUnixtime() }], {
     onevent: async (ev) => {
       if (ev.content.includes(keyword)) {
-        console.log("キーワード入りの投稿を受信!", ev);
+        console.log("キーワードを含む投稿を受信!", ev);
 
-        const reaction = composeReactionEvent("+", ev.pubkey, ev.id);
+        const reaction = composeReactionEvent("+", ev.id, ev.pubkey);
         await publishEvent(relay, reaction);
       }
     }
@@ -91,7 +93,7 @@ export const autoReplyBot = async () => {
     onevent: async (ev) => {
       console.log("リプライを受信!", ev);
 
-      const reply = composeReplyEvent("こんにちは！", ev.pubkey, ev.id);
+      const reply = composeReplyEvent("こんにちは！", ev.id, ev.pubkey);
       await publishEvent(relay, reply);
     }
   })
@@ -122,18 +124,15 @@ const composeTextEvent = (text: string): EventTemplate => {
 
 const composeReplyEvent = (
   text: string,
-  targetPubkey: string,
   targetEventId: string,
+  targetPubkey: string,
 ): EventTemplate => {
-  const targetNpub = nip19.npubEncode(targetPubkey);
-  const refToTargetAuthor = `nostr:${targetNpub}`;
-
   return {
     kind: 1,
-    content: `${refToTargetAuthor} ${text}`,
+    content: text,
     tags: [
+      ["e", targetEventId, ""],
       ["p", targetPubkey, ""],
-      ["e", targetEventId, "", "root"],
     ],
     created_at: currUnixtime(),
   };
