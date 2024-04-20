@@ -5,12 +5,13 @@
     "nostr-tools/event": "npm:nostr-tools@2.5.0/event",
     "nostr-tools/nip19": "npm:nostr-tools@2.5.0/nip19",
     "nostr-tools/relay": "npm:nostr-tools@2.5.0/relay",
-    "@noble/hashes/utils": "npm:@noble/hashes@1.4.0/utils"
+    "@noble/hashes/utils": "npm:@noble/hashes@1.4.0/utils",
+    "strtr": "npm:strtr@0.1.2"
   },
   "tasks": {
     "e1-1": "deno run -A scripts/1-1.ts",
     "e1-2": "deno run -A scripts/1-2.ts",
-    "e1-3": "deno run -A scripts/1-3.ts",
+    "e1-3": "deno run scripts/1-3.ts",
     "e1-4": "deno run -A scripts/1-4.ts",
     "e1-5": "deno run -A scripts/1-5.ts",
     "e2-1": "deno run -A scripts/2-1.ts",
@@ -19,8 +20,7 @@
     "e2-3": "deno run -A scripts/2-3.ts",
     "e2-4": "deno run -A scripts/2-4.ts",
     "gen-key-pair": "deno run scripts/1-3.ts",
-    "to-hex": "deno run scripts/to_hex.ts",
-    "sub-reply": "deno run -A scripts/sub_reply.ts"
+    "to-hex": "deno run scripts/to_hex.ts"
   },
   "fmt": {
     "lineWidth": 100

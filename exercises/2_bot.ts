@@ -2,13 +2,11 @@ import { Relay } from "nostr-tools/relay";
 import { finalizeEvent, getPublicKey } from "nostr-tools/pure";
 import * as nip19 from "nostr-tools/nip19";
 import { EventTemplate } from "nostr-tools/core";
-import { currUnixtime } from "../utils.ts";
-
-const TODO: any = undefined;
+import { currUnixtime } from "../common/utils.ts";
 
 const RELAY_URL = "wss://yabu.me";
 
-// 2.1
+// 2-1. Bot用のアカウントを設定する
 const BOT_NSEC = "nsec1...<botの秘密鍵>";
 
 const composeProfile = (): EventTemplate => {
@@ -31,8 +29,9 @@ export const updateBotProfile = async () => {
   const profileEv = composeProfile();
   await publishEvent(relay, profileEv);
 };
+// 2-1. ここまで
 
-// 2.2
+// 2-2. 定期的に自動投稿するBot
 export const timeSignalBot = async () => {
   const relay = await Relay.connect(RELAY_URL);
   setInterval(async () => {
@@ -48,8 +47,25 @@ export const cronTimeSignalBot = async () => {
     await publishEvent(relay, ev);
   });
 };
+// 2-2. ここまで
 
-// 2.3
+// 2-3. キーワードを含む投稿にリアクションするBot
+const composeReactionEvent = (
+  reaction: string,
+  targetPubkey: string,
+  targetEventId: string
+): EventTemplate => {
+  return {
+    kind: 7,
+    content: reaction,
+    tags: [
+      ["p", targetPubkey, ""],
+      ["e", targetEventId, ""],
+    ],
+    created_at: currUnixtime(),
+  };
+};
+
 export const keywordReactionBot = async (keyword: string) => {
   const relay = await Relay.connect(RELAY_URL);
 
@@ -64,8 +80,9 @@ export const keywordReactionBot = async (keyword: string) => {
     }
   })
 };
+// 2-3. ここまで
 
-// 2.4
+// 2-4. 自分宛てのリプライにリプライを返すBot
 export const autoReplyBot = async () => {
   const relay = await Relay.connect(RELAY_URL);
   const botPubkey = getPublicKey(nip19.decode(BOT_NSEC).data);
@@ -79,8 +96,9 @@ export const autoReplyBot = async () => {
     }
   })
 };
+// 2-4. ここまで
 
-// 
+
 const publishEvent = async (relay: Relay, ev: EventTemplate) => {
   const seckey = nip19.decode(BOT_NSEC).data;
   const signed = finalizeEvent(ev, seckey);
@@ -116,22 +134,6 @@ const composeReplyEvent = (
     tags: [
       ["p", targetPubkey, ""],
       ["e", targetEventId, "", "root"],
-    ],
-    created_at: currUnixtime(),
-  };
-};
-
-const composeReactionEvent = (
-  reaction: string,
-  targetPubkey: string,
-  targetEventId: string,
-): EventTemplate => {
-  return {
-    kind: 7,
-    content: reaction,
-    tags: [
-      ["p", targetPubkey, ""],
-      ["e", targetEventId, ""],
     ],
     created_at: currUnixtime(),
   };

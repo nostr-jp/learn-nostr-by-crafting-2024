@@ -1,7 +1,4 @@
 import { generateKeyPair } from "../exercises/1_basics.ts";
+import { runExercise } from "../common/utils.ts";
 
-try {
-  generateKeyPair();
-} catch (e) {
-  console.error("エラー:", e);
-}
+runExercise(generateKeyPair, "oneshot");

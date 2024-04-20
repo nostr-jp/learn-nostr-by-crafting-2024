@@ -1,7 +1,4 @@
 import { updateBotProfile } from "../exercises/2_bot.ts";
+import { runExercise } from "../common/utils.ts";
 
-try {
-  await updateBotProfile();
-} catch (e) {
-  console.error("エラー:", e);
-}
+runExercise(updateBotProfile, "oneshot");

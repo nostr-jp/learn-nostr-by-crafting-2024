@@ -1,7 +1,4 @@
 import { autoReplyBot } from "../exercises/2_bot.ts";
+import { runExercise } from "../common/utils.ts";
 
-try {
-  await autoReplyBot();
-} catch (e) {
-  console.error("エラー:", e);
-}
+runExercise(autoReplyBot, "persistent");

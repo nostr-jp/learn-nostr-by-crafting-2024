@@ -1,7 +1,4 @@
 import { cronTimeSignalBot } from "../exercises/2_bot.ts";
+import { runExercise } from "../common/utils.ts";
 
-try {
-  await cronTimeSignalBot();
-} catch (e) {
-  console.error("エラー:", e);
-}
+runExercise(cronTimeSignalBot, "persistent");
