@@ -45,7 +45,7 @@ export const timeSignalBot = async () => {
 const composeReactionEvent = (
   reaction: string,
   targetEventId: string,
-  targetPubkey: string,
+  targetPubkey: string
 ): EventTemplate => {
   return {
     kind: 7,
@@ -69,8 +69,8 @@ export const keywordReactionBot = async (keyword: string) => {
         const reaction = composeReactionEvent("+", ev.id, ev.pubkey);
         await publishEvent(relay, reaction);
       }
-    }
-  })
+    },
+  });
 };
 // 2-3. ここまで
 
@@ -83,13 +83,14 @@ export const autoReplyBot = async () => {
     onevent: async (ev) => {
       console.log("リプライを受信!", ev);
 
-      const reply = composeReplyEvent("こんにちは！", ev.id, ev.pubkey);
-      await publishEvent(relay, reply);
-    }
-  })
+      if (isSafeToReply(ev.pubkey)) {
+        const reply = composeReplyEvent("こんにちは！", ev.id, ev.pubkey);
+        await publishEvent(relay, reply);
+      }
+    },
+  });
 };
 // 2-4. ここまで
-
 
 const publishEvent = async (relay: Relay, ev: EventTemplate) => {
   const seckey = nip19.decode(BOT_NSEC).data;
@@ -115,7 +116,7 @@ const composeTextEvent = (text: string): EventTemplate => {
 const composeReplyEvent = (
   text: string,
   targetEventId: string,
-  targetPubkey: string,
+  targetPubkey: string
 ): EventTemplate => {
   return {
     kind: 1,
@@ -128,4 +129,24 @@ const composeReplyEvent = (
   };
 };
 
+// 現在時刻の文字列を得る
 const currTimeString = () => new Date().toLocaleString("ja-JP");
+
+/* 暴走・無限リプライループ対策 */
+// クールタイム: 60秒
+const COOL_TIME_DUR_SEC = 60;
+
+// 公開鍵ごとの最後にリプライを返した時刻(unixtime)を記録
+const lastReplyTimePerPubkey = new Map();
+
+// 引数のイベントにリプライしても安全か?
+// 最後にリプライを返した時点からクールタイム分の時間が経過していない場合、安全でない
+const isSafeToReply = (pubkey: string) => {
+  const now = currUnixtime();
+  const lastReplyTime = lastReplyTimePerPubkey.get(pubkey);
+  if (lastReplyTime !== undefined && now - lastReplyTime < COOL_TIME_DUR_SEC) {
+    return false;
+  }
+  lastReplyTimePerPubkey.set(pubkey, now);
+  return true;
+};
