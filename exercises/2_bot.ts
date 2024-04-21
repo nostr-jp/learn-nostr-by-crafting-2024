@@ -41,16 +41,6 @@ export const timeSignalBot = async () => {
 };
 // 2-2. ここまで
 
-// 2-2.おまけ 定期的に自動投稿するBot(cron利用)
-export const cronTimeSignalBot = async () => {
-  const relay = await Relay.connect(RELAY_URL);
-  Deno.cron("time signal", "* * * * *", async () => {
-    const ev = composeTextEvent(`${currTimeString()}をお知らせします！`);
-    await publishEvent(relay, ev);
-  });
-};
-// 2-2.おまけ ここまで
-
 // 2-3. キーワードを含む投稿にリアクションするBot
 const composeReactionEvent = (
   reaction: string,
