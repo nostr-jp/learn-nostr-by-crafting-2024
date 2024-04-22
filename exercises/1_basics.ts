@@ -23,7 +23,7 @@ export const fetchTextEvents = async () => {
   const relay = await Relay.connect(RELAY_URL);
   relay.subscribe([{ kinds: [1] }], {
     onevent: (ev) => {
-      console.log(`${ev.pubkey}: ${ev.content}`);
+      console.log(ev);
     },
   });
 };
@@ -39,9 +39,9 @@ export const generateKeyPair = () => {
 };
 // 1-3. ここまで
 
+// 1.4 自分から投稿してみよう
 const MY_NSEC = "nsec1...<あなたの秘密鍵>";
 
-// 1.4 自分から投稿してみよう
 const composeTextEvent = (text: string): EventTemplate => {
   return {
     kind: 1,
@@ -59,14 +59,13 @@ const publishEvent = async (relay: Relay, ev: EventTemplate) => {
 
   console.log("投稿成功！");
   console.log(signed);
-
-  relay.close();
 };
 
 export const postText = async (text: string) => {
   const relay = await Relay.connect(RELAY_URL);
   const textEv = composeTextEvent(text);
   await publishEvent(relay, textEv);
+  relay.close();
 };
 // 1-4. ここまで
 
@@ -95,5 +94,6 @@ export const postReply = async (text: string) => {
     "<リプライ対象イベントのpubkey>",
   );
   await publishEvent(relay, replyEv);
+  relay.close();
 };
 // 1-5. ここまで
