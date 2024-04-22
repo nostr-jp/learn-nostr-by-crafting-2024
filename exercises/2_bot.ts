@@ -83,7 +83,7 @@ export const autoReplyBot = async () => {
     onevent: async (ev) => {
       console.log("リプライを受信!", ev);
 
-      if (isSafeToReply(ev.pubkey)) {
+      if (!repliedRecently(ev.pubkey)) {
         const reply = composeReplyEvent("こんにちは！", ev.id, ev.pubkey);
         await publishEvent(relay, reply);
       }
@@ -139,14 +139,13 @@ const COOL_TIME_DUR_SEC = 60;
 // 公開鍵ごとの最後にリプライを返した時刻(unixtime)を記録
 const lastReplyTimePerPubkey = new Map();
 
-// 引数のイベントにリプライしても安全か?
-// 最後にリプライを返した時点からクールタイム分の時間が経過していない場合、安全でない
-const isSafeToReply = (pubkey: string) => {
+// 引数の公開鍵(=投稿者)からのポストに最近リプライを返したかどうか
+const repliedRecently = (pubkey: string) => {
   const now = currUnixtime();
   const lastReplyTime = lastReplyTimePerPubkey.get(pubkey);
   if (lastReplyTime !== undefined && now - lastReplyTime < COOL_TIME_DUR_SEC) {
-    return false;
+    return true;
   }
   lastReplyTimePerPubkey.set(pubkey, now);
-  return true;
+  return false;
 };
