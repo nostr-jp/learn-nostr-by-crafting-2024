@@ -1,14 +1,46 @@
 # 「手を動かして学ぶ Nostrプロトコル 2024」演習環境
 
-*以下未編集*
+[Hello Nostr, Yo Bluesky 2 最先端分散型SNSの愉快な仲間たち](https://)([技術書典16](https://techbookfest.org/)にて頒布)内の記事、「手を動かして学ぶ Nostrプロトコル 2024」の演習環境です。
 
-[Hello Nostr! 先住民が教えるNosteの歩き方](https://nip-book.nostr-jp.org/book/1/)
-([技術書典](https://techbookfest.org/)にて頒布) 内の記事「手を動かして学ぶ
-Nostrプロトコル」(pp.65-75) の演習環境を含むリポジトリです。
+## セットアップ
+### GitHub Codespacesを利用する方法(オススメ！)
 
-## 演習環境のセットアップ
+GitHubのアカウントを持っていない場合は、まず画面右上の「Sign up」よりアカウントを作成してください。
 
-まず、[Deno](https://deno.com/runtime)をインストールします(既にインストール済みの場合はスキップしてください)。
+GitHubアカウントでログインした状態で以下の操作を行います。
+1. 緑色の「Code」ボタンをクリック
+2. 開いたドロップダウン内の「Codespaces」タブをクリック
+3. 「Create codespaces on main」をクリック
+
+![codespaces.png](./codespaces.png)
+
+「Setting up your codespace」という画面でしばらく待機していると、エディタ画面に切り替わるはずです。
+以上で、必要なものがすべて揃った環境の準備ができました！
+
+--- 
+
+<details>
+<summary>ローカルマシン上にセットアップ(開発者向け)</summary>
+
+### ローカルマシンに開発コンテナ(Dev Containers)を利用してセットアップ
+
+前提: Visual Studio Code (以下 VSCode と表記) と Docker のインストール
+
+1. この演習環境リポジトリをクローンし、VSCodeでディレクトリを開きます。
+
+```bash
+git clone https://github.com/nostr-jp/learn-nostr-by-crafting-2024.git
+code learn-nostr-by-crafting-2024
+```
+
+2. VSCode内でコマンド「Dev Containers: Reopen in Container(開発コンテナ: コンテナで再度開く)」を実行します。
+
+開発コンテナ内でエディタが開いたら準備完了です。
+
+
+### ローカルマシンに手動でセットアップ
+
+1. [Deno](https://deno.com/runtime)をインストールします(既にインストール済みの場合はスキップしてください)。
 
 ```bash
 # macOS または Linux の場合
@@ -18,71 +50,35 @@ curl -fsSL https://deno.land/x/install/install.sh | sh
 irm https://deno.land/install.ps1 | iex
 ```
 
-次に、以下のコマンドで演習環境をクローンし、演習環境のディレクトリに移動します。
+2. 次に、以下のコマンドで演習環境をクローンし、演習環境のディレクトリに移動します。
 
 ```bash
-git clone https://github.com/nostr-jp/learn-nostr-by-crafting-deno.git
-cd learn-nostr-by-crafting-deno
+git clone https://github.com/nostr-jp/learn-nostr-by-crafting-2024.git
 ```
+
+3. お好みのエディタで演習環境のディレクトリを開きます。
+  - 必要に応じてDenoでのプログラミング用の拡張機能・プラグインをインストールするとよいでしょう
+
+</details>
 
 ## 演習の進め方
 
-演習環境には、演習の各節に対応するソースファイルが用意されています。ファイル名の先頭(1-1〜2-3)が、対応する節を表します。
-本文の説明に従ってソースコードの /* Q-1: ... */
-となっている部分に適切なコードを書いて、目的の機能を実装していきましょう。
+演習は大きく「1. 基礎編」と「2. Bot実装編」の2章に分かれており、各章中の節ごとに「コードを書く→実行する」を行います。
 
-実装が完了したら、以下のようにして実行します。
+### コードを書く
+本文中の次のような囲みにたどり着いたら、演習環境の`exercises`フォルダ内の囲み上部に示された名前のファイルの該当箇所へ、囲み内のコードを書き写してください(各行の「//」以降の部分はコメントなので、書き写すは必要ありません)。
 
+```1_basics.ts
+// 1-x. (節タイトル)
+
+... コード ...
+
+// 1-x. ここまで
 ```
-deno run -A 1-1_fetch_posts_raw_ws.ts
+
+### 実行する
+本文中の次のような囲みにたどり着いたら、ターミナルを開いて囲み内のコマンドを入力し、Enter/Returnキーを押下して実行します。
+
+```terminal
+deno task e1-x
 ```
-
-一部のプログラムは、実行時にコマンドライン引数を渡す必要がありますのでご注意ください。
-
-## Deno Task
-
-以下のDeno Taskが用意されていますので、必要に応じて利用してください。例えば `deno task gen-key-pair`
-のようにして実行します。
-
-- `gen-key-pair`: 秘密鍵と公開鍵のペアを生成
-- `to-hex <bech32形式のデータ>`: `npub...` `nsec...`
-  のようなフォーマット(bech32形式といいます)のデータを、16進文字列形式に変換
-  - bech32形式では、先頭の文字列(接頭辞)がデータの種類を表します。以下にNostrで使われている接頭辞の例を示します
-  - `npub...`: 公開鍵
-  - `nprofile...`: 公開鍵 + 付加情報
-  - `nsec...`: 秘密鍵
-  - `note...`: 投稿のイベントID
-  - `nevent...`: 一般の(投稿に限らない)イベントID + 付加情報
-- `sub-reply <リレーURL> <公開鍵(hex形式)>`:
-  指定したリレーに接続し、指定した公開鍵を対象とするリプライを購読して表示
-  - 1-4節の演習にて、リプライ実装チェッカーからのリプライ(チェック結果)を受け取るのに使うとよいでしょう
-
-## ヒント
-
-- 1-2節以降で利用する nostr-tools のGitリポジトリは[こちら](https://github.com/nbd-wtf/nostr-tools)
-- 1-3節: 自分が普段利用している秘密鍵を調べるには?
-  - Webブラウザ拡張機能(NIP-07)を利用している場合は、拡張機能のオプションから確認できるはずです
-  - Amethystの場合: 画面左上のアイコンをタップ →「Backup Keys」→「Copy my secret key」
-  - Damusの場合: 画面左上のアイコンをタップ→「設定」→「鍵」→「ログイン用秘密鍵」を確認
-- 1-4節:
-  各種Nostrクライアントで投稿のイベントIDを調べる方法。取得できるIDはbech32形式のため、npmスクリプト`to-hex`
-  を使ってhex形式に変換する必要があります
-  - Snort: 投稿下方の ︙ →「Copy ID」
-  - Iris: 投稿右上の … →「Copy Note ID」
-  - Rabbit: 投稿下方の … →「IDをコピー」
-  - nostter: 投稿右下の {…} →「Note ID」を確認
-- 1-4節:
-  各種Nostrクライアントで投稿者の公開鍵を調べる方法。取得できるIDはbech32形式のため、npmスクリプト`to-hex`
-  を使ってhex形式に変換する必要があります
-  - Snort: 投稿者のアイコンをクリック → 表示されるプロフィール画面で`npub`から始まる文字列を確認
-  - Iris: 投稿者のアイコンをクリック → 右上の … → 「Copy User ID」
-  - Rabbit: 投稿者のアイコンをクリック → 表示されるプロフィール画面で`npub`から始まる文字列を確認
-  - nostter: 投稿者のアイコンをクリック →
-    表示されるプロフィール画面で`npub`または`nprofile`から始まる文字列を確認
-- 1-4節: リプライの実装が正しいか確認してくれる
-  [リプライ実装チェッカーbot](https://nostx.shino3.net/npub1y75tnycxnpp8z23fkql4xn597x3alnd728xa93ujxtxvxrktvm5qf3rg9u/)
-  を用意しています。公開鍵は以下の通り
-
-  ```
-  27a8b993069842712a29b03f534e85f1a3dfcdbe51cdd2c79232ccc30ecb66e8
-  ```
